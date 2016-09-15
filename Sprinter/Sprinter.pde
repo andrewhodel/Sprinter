@@ -1997,8 +1997,7 @@ FORCE_INLINE void get_coordinates()
   
   if(code_seen('F'))
   {
-    // convert mm/m to mm/s as that is what both Slic3r and Cura export
-    next_feedrate = code_value()/60;
+    next_feedrate = code_value();
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }
