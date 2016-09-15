@@ -1116,6 +1116,7 @@ void enable_endstops(bool check)
   check_endstops = check;
 }
 
+// code_value just converts the string to a real int
 FORCE_INLINE float code_value() { return (strtod(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL)); }
 FORCE_INLINE long code_value_long() { return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); }
 FORCE_INLINE bool code_seen(char code_string[]) { return (strstr(cmdbuffer[bufindr], code_string) != NULL); }  //Return True if the string was found
@@ -1983,7 +1984,8 @@ FORCE_INLINE void get_coordinates()
   
   if(code_seen('F'))
   {
-    next_feedrate = code_value();
+    // convert mm/m to mm/s as that is what both Slic3r and Cura export
+    next_feedrate = code_value()/60;
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }

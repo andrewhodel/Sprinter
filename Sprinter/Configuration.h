@@ -32,7 +32,7 @@
 
 //// Calibration variables
 // X, Y, Z, E steps per unit - Metric Prusa Mendel with Wade extruder:
-#define _AXIS_STEP_PER_UNIT {80, 80, 3200/1.25,700}
+#define _AXIS_STEP_PER_UNIT {85, 85, 4000, 499.903}
 // Metric Prusa Mendel with Makergear geared stepper extruder:
 //#define _AXIS_STEP_PER_UNIT {80,80,3200/1.25,1380}
 // MakerGear Hybrid Prusa Mendel:
@@ -54,7 +54,7 @@ const bool Z_ENDSTOP_INVERT = false;
 //#define BAUDRATE 250000
 
 // Comment out (using // at the start of the line) to disable SD support:
-#define SDSUPPORT
+//#define SDSUPPORT
 
 // Uncomment to make run init.g from SD on boot
 //#define SDINITFILE
@@ -109,8 +109,8 @@ const bool Z_ENDSTOP_INVERT = false;
 //-----------------------------------------------------------------------
 // Disables axis when it's not being used.
 //-----------------------------------------------------------------------
-const bool DISABLE_X = false;
-const bool DISABLE_Y = false;
+const bool DISABLE_X = true;
+const bool DISABLE_Y = true;
 const bool DISABLE_Z = true;
 const bool DISABLE_E = false;
 
@@ -118,7 +118,7 @@ const bool DISABLE_E = false;
 // Inverting axis direction
 //-----------------------------------------------------------------------
 const bool INVERT_X_DIR = false;
-const bool INVERT_Y_DIR = false;
+const bool INVERT_Y_DIR = true;
 const bool INVERT_Z_DIR = true;
 const bool INVERT_E_DIR = false;
 
@@ -141,7 +141,7 @@ const bool max_software_endstops = true; //If true, axis won't move to coordinat
 //-----------------------------------------------------------------------
 const int X_MAX_LENGTH = 200;
 const int Y_MAX_LENGTH = 200;
-const int Z_MAX_LENGTH = 100;
+const int Z_MAX_LENGTH = 180;
 
 //-----------------------------------------------------------------------
 //// MOVEMENT SETTINGS
@@ -381,7 +381,7 @@ const int dropsegments=5; //everything with less than this number of steps will 
 //#define SEND_WRONG_CMD_INFO
 
 // Uncomment the following line to enable debugging. You can better control debugging below the following line
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
   //#define DEBUG_PREPARE_MOVE //Enable this to debug prepare_move() function
   //#define DEBUG_MOVE_TIME //Enable this to time each move and print the result   
