@@ -1754,27 +1754,27 @@ FORCE_INLINE void process_commands()
       
       	#if (X_MIN_PIN > -1)
           showString(PSTR("x_min:"));
-          Serial.print((READ(X_MIN_PIN)^X_ENDSTOP_INVERT)?"H ":"L ");
+          Serial.print((READ(X_MIN_PIN)^X_ENDSTOP_INVERT)?"on ":"off ");
       	#endif
       	#if (X_MAX_PIN > -1)
           showString(PSTR("x_max:"));
-          Serial.print((READ(X_MAX_PIN)^X_ENDSTOP_INVERT)?"H ":"L ");
+          Serial.print((READ(X_MAX_PIN)^X_ENDSTOP_INVERT)?"on ":"off ");
       	#endif
       	#if (Y_MIN_PIN > -1)
       	  showString(PSTR("y_min:"));
-          Serial.print((READ(Y_MIN_PIN)^Y_ENDSTOP_INVERT)?"H ":"L ");
+          Serial.print((READ(Y_MIN_PIN)^Y_ENDSTOP_INVERT)?"on ":"off ");
       	#endif
       	#if (Y_MAX_PIN > -1)
       	  showString(PSTR("y_max:"));
-          Serial.print((READ(Y_MAX_PIN)^Y_ENDSTOP_INVERT)?"H ":"L ");
+          Serial.print((READ(Y_MAX_PIN)^Y_ENDSTOP_INVERT)?"on ":"off ");
       	#endif
       	#if (Z_MIN_PIN > -1)
       	  showString(PSTR("z_min:"));
-          Serial.print((READ(Z_MIN_PIN)^Z_ENDSTOP_INVERT)?"H ":"L ");
+          Serial.print((READ(Z_MIN_PIN)^Z_ENDSTOP_INVERT)?"on ":"off ");
       	#endif
       	#if (Z_MAX_PIN > -1)
       	  showString(PSTR("z_max:"));
-          Serial.print((READ(Z_MAX_PIN)^Z_ENDSTOP_INVERT)?"H ":"L ");
+          Serial.print((READ(Z_MAX_PIN)^Z_ENDSTOP_INVERT)?"on ":"off ");
       	#endif
       
         showString(PSTR("\r\n"));
