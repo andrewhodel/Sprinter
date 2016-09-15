@@ -1,6 +1,5 @@
 /*
  Reprap firmware based on Sprinter
- Optimized for Sanguinololu 1.2 and above / RAMPS 
  
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -13,136 +12,7 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-
-/*
-  This firmware is a mashup between Sprinter, grbl and parts from marlin.
-  (https://github.com/kliment/Sprinter)
-  
-  Changes by Doppler Michael (midopple)
-  
-  Planner is from Simen Svale Skogsrud
-  https://github.com/simen/grbl
-
-  Parts of Marlin Firmware from ErikZalm
-  https://github.com/ErikZalm/Marlin-non-gen6
-  
-  Sprinter Changelog
-  -  Look forward function --> calculate 16 Steps forward, get from Firmaware Marlin and Grbl
-  -  Stepper control with Timer 1 (Interrupt)
-  -  Extruder heating with PID use a Softpwm (Timer 2) with 500 hz to free Timer1 for Steppercontrol
-  -  command M220 Sxxx --> tune Printing speed online (+/- 50 %)
-  -  G2 / G3 command --> circle function
-  -  Baudrate set to 250 kbaud
-  -  Testet on Sanguinololu Board
-  -  M30 Command can delete files on SD Card
-  -  move string to flash to free RAM vor forward planner
-  -  M203 Temperature monitor for Repetier
-
- Version 1.3.04T
-  - Implement Plannercode from Marlin V1 big thanks to Erik
-  - Stepper interrupt with Step loops
-  - Stepperfrequency 30 Khz
-  - New Command
-    * M202 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
-    * M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2 
-    * M205 - advanced settings:  minimum travel speed S=while printing T=travel only,  X= maximum xy jerk, Z=maximum Z jerk, E = max E jerk
-  - Remove unused Variables
-  - Check Uart Puffer while circle processing (CMD: G2 / G3)
-  - Fast Xfer Function --> move Text to Flash
-  - Option to deactivate ARC (G2/G3) function (save flash)
-  - Removed modulo (%) operator, which uses an expensive divide
-
- Version 1.3.05T
-  - changed homing function to not conflict with min_software_endstops/max_software_endstops (thanks rGlory)
-  - Changed check in arc_func
-  - Corrected distance calculation. (thanks jv4779)
-  - MAX Feed Rate for Z-Axis reduced to 2 mm/s some Printers had problems with 4 mm/s
-  
- Version 1.3.06T
- - the microcontroller can store settings in the EEPROM
- - M500 - stores paramters in EEPROM
- - M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
- - M502 - reverts to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
- - M503 - Print settings
- 
- Version 1.3.07T
- - Optimize Variable Size (faster Code)
- - Remove unused Code from Interrupt --> faster ~ 22 us per step
- - Replace abs with fabs --> Faster and smaler
- - Add "store_eeprom.cpp" to makefile
-
- Version 1.3.08T
- - If a line starts with ';', it is ignored but comment_mode is reset.
-   A ';' inside a line ignores just the portion following the ';' character.
-   The beginning of the line is still interpreted.
-   
- - Same fix for SD Card, tested and work
-
- Version 1.3.09T
- - Move SLOWDOWN Function up
- 
- Version 1.3.10T
-- Add info to GEN7 Pins
-- Update pins.h for gen7, working setup for 20MHz
-- calculate feedrate without extrude before planner block is set
-- New Board --> GEN7 @ 20 Mhz …
-- ENDSTOPS_ONLY_FOR_HOMING Option ignore Endstop always --> fault is cleared
-
- Version 1.3.11T
-- fix for broken include in store_eeprom.cpp  --> Thanks to kmeehl (issue #145)
-- Make fastio & Arduino pin numbering consistent for AT90USB128x. --> Thanks to lincomatic
-- Select Speedtable with F_CPU
-- Use same Values for Speedtables as Marlin 
-
- Version 1.3.12T
-- Fixed arc offset.
-
- Version 1.3.13T
-- Extrudemultiply with code M221 Sxxx (S100 original Extrude value)
-- use Feedratefactor only when Extrude > 0
-- M106 / M107 can drive the FAN with PWM + Port check for not using Timer 1
-- Added M93 command. Sends current steps for all axis.
-- New Option --> FAN_SOFT_PWM, with this option the FAN PWM can use every digital I/O
-
- Version 1.3.14T
-- When endstop is hit count the virtual steps, so the print lose no position when endstop is hit
-
- Version 1.3.15T
-- M206 - set additional homing offset 
-- Option for minimum FAN start speed --> #define MINIMUM_FAN_START_SPEED  50  (set it to zero to deactivate)
-  
- Version 1.3.16T
-- Extra Max Feedrate for Retract (MAX_RETRACT_FEEDRATE)
-
- Version 1.3.17T
-- M303 - PID relay autotune possible
-- G4 Wait until last move is done
-
- Version 1.3.18T
-- Problem with Thermistor 3 table when sensor is broken and temp is -20 °C
-
- Version 1.3.19T
-- Set maximum acceleration. If "steps per unit" is Change the acc were not recalculated
-- Extra Parameter for Max Extruder Jerk
-- New Parameter (max_e_jerk) in EEPROM --> Default settings after update !
-
- Version 1.3.20T
-- fix a few typos and correct english usage
-- reimplement homing routine as an inline function
-- refactor eeprom routines to make it possible to modify the value of a single parameter
-- calculate eeprom parameter addresses based on previous param address plus sizeof(type)
-- add 0 C point in Thermistortable 7
-
- Version 1.3.21T
-- M301 set PID Parameter, and Store to EEPROM
-- If no PID is used, deaktivate Variables for PID settings
-
- Version 1.3.22T
-- Error in JERK calculation after G92 command is send, make problems 
-  with Z-Lift function in Slic3r
-- Add homing values can shown with M206 D
-
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <avr/pgmspace.h>
@@ -157,10 +27,6 @@
 
 #ifdef USE_ARC_FUNCTION
   #include "arc_func.h"
-#endif
-
-#ifdef SDSUPPORT
-  #include "SdFat.h"
 #endif
 
 #ifdef USE_EEPROM_SETTINGS
@@ -191,41 +57,31 @@ void __cxa_pure_virtual(){};
 
 //RepRap M Codes
 // M104 - Set extruder target temp
-// M105 - Read current temp
+// M105 - Read current temp, returns a string like "E0,235,200,B0,140,100" followed by "ok\r\n"
+//                                                 "E0,SET_TEMP,ACTUAL_TEMP,B0,SET_TEMP,ACTUAL_TEMP"
+// M109 - Set extruder target temp and wait
+// M140 - Set bed target temp
+// M190 - Set bed target temp and wait
 // M106 - Fan on
 // M107 - Fan off
-// M109 - Wait for extruder current temp to reach target temp.
 // M114 - Display current position
 
 //Custom M Codes
-// M20  - List SD card
-// M21  - Init SD card
-// M22  - Release SD card
-// M23  - Select SD file (M23 filename.g)
-// M24  - Start/resume SD print
-// M25  - Pause SD print
-// M26  - Set SD position in bytes (M26 S12345)
-// M27  - Report SD print status
-// M28  - Start SD write (M28 filename.g)
-// M29  - Stop SD write
-//   -  <filename> - Delete file on sd card
 // M42  - Set output on free pins, on a non pwm pin (over pin 13 on an arduino mega) use S255 to turn it on and S0 to turn it off. Use P to decide the pin (M42 P23 S255) would turn pin 23 on
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
-// M82  - Set E codes absolute (default)
-// M83  - Set E codes relative while in Absolute Coordinates (G90) mode
+// M82  - Set (E)xtruder codes to absolute (default)
+// M83  - Set (E)xtruder codes relative
 // M84  - Disable steppers until next move, 
 //        or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
+//        this has the effect of shutting down the heaters after S<seconds> if a command is not sent
 // M92  - Set axis_steps_per_unit - same syntax as G92
 // M93  - Send axis_steps_per_unit
 // M115	- Capabilities string
 // M119 - Show Endstopper State 
-// M140 - Set bed target temp
-// M190 - Wait for bed current temp to reach target temp.
 // M201 - Set maximum acceleration in units/s^2 for print moves (M201 X1000 Y1000)
-// M202 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
-// M203 - Set temperture monitor to Sx
+// M202 - Set maximum feedrate that your machine can sustain (M202 X200 Y200 Z300 E10000) in mm/sec
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) in mm/sec^2
 // M205 - advanced settings:  minimum travel speed S=while printing T=travel only,  X=maximum xy jerk, Z=maximum Z jerk
 // M206 - set additional homing offset
@@ -248,8 +104,7 @@ void __cxa_pure_virtual(){};
 // M602 - Reset Temp jitter from Extruder (min / max val) --> Don't use it while Printing
 // M603 - Show Free Ram
 
-
-#define _VERSION_TEXT "1.3.22T / 20.08.2012"
+#define _VERSION_TEXT "simple-and-right-1.0 / 2016"
 
 //Stepper Movement Variables
 char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
@@ -349,14 +204,6 @@ float offset[3] = {0.0, 0.0, 0.0};
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 6 //8
 char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
-bool fromsd[BUFSIZE];
-
-//Need 1kb Ram --> only work with Atmega1284
-#ifdef SD_FAST_XFER_AKTIV
-  char fastxferbuffer[SD_FAST_XFER_CHUNK_SIZE + 1];
-  int lastxferchar;
-  long xferbytes;
-#endif
 
 unsigned char bufindr = 0;
 unsigned char bufindw = 0;
@@ -373,237 +220,6 @@ int hotendtC = 0, bedtempC = 0;
 unsigned long previous_millis_cmd = 0;
 unsigned long max_inactive_time = 0;
 unsigned long stepper_inactive_time = 0;
-
-//Temp Monitor for repetier
-unsigned char manage_monitor = 255;
-
-
-//------------------------------------------------
-//Init the SD card 
-//------------------------------------------------
-#ifdef SDSUPPORT
-  Sd2Card card;
-  SdVolume volume;
-  SdFile root;
-  SdFile file;
-  uint32_t filesize = 0;
-  uint32_t sdpos = 0;
-  bool sdmode = false;
-  bool sdactive = false;
-  bool savetosd = false;
-  int16_t read_char_int;
-  
-  void initsd()
-  {
-  sdactive = false;
-  #if SDSS >- 1
-    if(root.isOpen())
-        root.close();
-
-    if (!card.init(SPI_FULL_SPEED,SDSS)){
-        //if (!card.init(SPI_HALF_SPEED,SDSS))
-          showString(PSTR("SD init fail\r\n"));
-    }
-    else if (!volume.init(&card))
-          showString(PSTR("volume.init failed\r\n"));
-    else if (!root.openRoot(&volume)) 
-          showString(PSTR("openRoot failed\r\n"));
-    else{
-          sdactive = true;
-          print_disk_info();
-
-          #ifdef SDINITFILE
-            file.close();
-            if(file.open(&root, "init.g", O_READ)){
-                sdpos = 0;
-                filesize = file.fileSize();
-                sdmode = true;
-            }
-          #endif
-    }
-    
-  #endif
-  }
-  
-  #ifdef SD_FAST_XFER_AKTIV
-  
-  #ifdef PIDTEMP
-    extern volatile unsigned char g_heater_pwm_val;
-  #endif
-  
-  void fast_xfer()
-  {
-    char *pstr;
-    boolean done = false;
-    
-    //force heater pins low
-    if(HEATER_0_PIN > -1) WRITE(HEATER_0_PIN,LOW);
-    if(HEATER_1_PIN > -1) WRITE(HEATER_1_PIN,LOW);
-    
-  #ifdef PIDTEMP
-    g_heater_pwm_val = 0;
-  #endif
-    
-    lastxferchar = 1;
-    xferbytes = 0;
-    
-    pstr = strstr(strchr_pointer+4, " ");
-    
-    if(pstr == NULL)
-    {
-      showString(PSTR("invalid command\r\n"));
-      return;
-    }
-    
-    *pstr = '\0';
-    
-    //check mode (currently only RAW is supported
-    if(strcmp(strchr_pointer+4, "RAW") != 0)
-    {
-      showString(PSTR("Invalid transfer codec\r\n"));
-      return;
-    }else{
-      showString(PSTR("Selected codec: "));
-      Serial.println(strchr_pointer+4);
-    }
-    
-    if (!file.open(&root, pstr+1, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
-    {
-      showString(PSTR("open failed, File: "));
-      Serial.print(pstr+1);
-      showString(PSTR("."));
-    }else{
-      showString(PSTR("Writing to file: "));
-      Serial.println(pstr+1);
-    }
-        
-    showString(PSTR("ok\r\n"));
-    
-    //RAW transfer codec
-    //Host sends \0 then up to SD_FAST_XFER_CHUNK_SIZE then \0
-    //when host is done, it sends \0\0.
-    //if a non \0 character is recieved at the beginning, host has failed somehow, kill the transfer.
-    
-    //read SD_FAST_XFER_CHUNK_SIZE bytes (or until \0 is recieved)
-    while(!done)
-    {
-      while(!Serial.available())
-      {
-      }
-      if(Serial.read() != 0)
-      {
-        //host has failed, this isn't a RAW chunk, it's an actual command
-        file.sync();
-        file.close();
-        return;
-      }
-
-      for(int i=0;i<SD_FAST_XFER_CHUNK_SIZE+1;i++)
-      {
-        while(!Serial.available())
-        {
-        }
-        lastxferchar = Serial.read();
-        //buffer the data...
-        fastxferbuffer[i] = lastxferchar;
-        
-        xferbytes++;
-        
-        if(lastxferchar == 0)
-          break;
-      }
-      
-      if(fastxferbuffer[0] != 0)
-      {
-        fastxferbuffer[SD_FAST_XFER_CHUNK_SIZE] = 0;
-        file.write(fastxferbuffer);
-        showString(PSTR("ok\r\n"));
-      }else{
-        showString(PSTR("Wrote "));
-        Serial.print(xferbytes);
-        showString(PSTR(" bytes.\r\n"));
-        done = true;
-      }
-    }
-
-    file.sync();
-    file.close();
-  }
-  #endif
-    
-
- void print_disk_info(void)
- {
-
-   // print the type of card
-    showString(PSTR("\nCard type: "));
-    switch(card.type()) 
-    {
-      case SD_CARD_TYPE_SD1:
-        showString(PSTR("SD1\r\n"));
-        break;
-      case SD_CARD_TYPE_SD2:
-        showString(PSTR("SD2\r\n"));
-        break;
-      case SD_CARD_TYPE_SDHC:
-        showString(PSTR("SDHC\r\n"));
-        break;
-      default:
-        showString(PSTR("Unknown\r\n"));
-    }
-  
-    //uint64_t freeSpace = volume.clusterCount()*volume.blocksPerCluster()*512;
-    //uint64_t occupiedSpace = (card.cardSize()*512) - freeSpace;
-    // print the type and size of the first FAT-type volume
-    uint32_t volumesize;
-    showString(PSTR("\nVolume type is FAT"));
-    Serial.println(volume.fatType(), DEC);
-    
-    volumesize = volume.blocksPerCluster(); // clusters are collections of blocks
-    volumesize *= volume.clusterCount(); // we'll have a lot of clusters
-    volumesize *= 512; // SD card blocks are always 512 bytes
-    volumesize /= 1024; //kbytes
-    volumesize /= 1024; //Mbytes
-    showString(PSTR("Volume size (Mbytes): "));
-    Serial.println(volumesize);
-   
-    // list all files in the card with date and size
-    //root.ls(LS_R | LS_DATE | LS_SIZE);
- }
-
-    
-    
- 
-  
-  FORCE_INLINE void write_command(char *buf)
-  {
-      char* begin = buf;
-      char* npos = 0;
-      char* end = buf + strlen(buf) - 1;
-      
-      file.writeError = false;
-      
-      if((npos = strchr(buf, 'N')) != NULL)
-      {
-          begin = strchr(npos, ' ') + 1;
-          end = strchr(npos, '*') - 1;
-      }
-      
-      end[1] = '\r';
-      end[2] = '\n';
-      end[3] = '\0';
-      
-      //Serial.println(begin);
-      file.write(begin);
-      
-      if (file.writeError)
-      {
-          showString(PSTR("error writing to file\r\n"));
-      }
-  }
-
-#endif
-
 
 int FreeRam1(void)
 {
@@ -677,18 +293,13 @@ void setup()
 { 
   
   Serial.begin(BAUDRATE);
+
   showString(PSTR("Sprinter\r\n"));
   showString(PSTR(_VERSION_TEXT));
   showString(PSTR("\r\n"));
-  showString(PSTR("start\r\n"));
 
-  for(int i = 0; i < BUFSIZE; i++)
-  {
-      fromsd[i] = false;
-  }
-  
+  showString(PSTR("started\r\n"));
 
-  
   //Initialize Dir Pins
   #if X_DIR_PIN > -1
     SET_OUTPUT(X_DIR_PIN);
@@ -839,19 +450,6 @@ void setup()
   WRITE(MAX6675_SS,1);
 #endif  
  
-#ifdef SDSUPPORT
-
-  //power to SD reader
-  #if SDPOWER > -1
-    SET_OUTPUT(SDPOWER); 
-    WRITE(SDPOWER,HIGH);
-  #endif
-  
-  showString(PSTR("SD Start\r\n"));
-  initsd();
-
-#endif
-
   #if defined(PID_SOFT_PWM) || (defined(FAN_SOFT_PWM) && (FAN_PIN > -1))
   showString(PSTR("Soft PWM Init\r\n"));
   init_Timer2_softpwm();
@@ -902,29 +500,7 @@ void loop()
   
   if(buflen)
   {
-#ifdef SDSUPPORT
-    if(savetosd)
-    {
-        if(strstr(cmdbuffer[bufindr],"M29") == NULL)
-        {
-            write_command(cmdbuffer[bufindr]);
-            showString(PSTR("ok\r\n"));
-        }
-        else
-        {
-            file.sync();
-            file.close();
-            savetosd = false;
-            showString(PSTR("Done saving file.\r\n"));
-        }
-    }
-    else
-    {
-        process_commands();
-    }
-#else
     process_commands();
-#endif
 
     buflen = (buflen-1);
     //bufindr = (bufindr + 1)%BUFSIZE;
@@ -970,7 +546,6 @@ void get_command()
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
 
-        fromsd[bufindw] = false;
         if(strstr(cmdbuffer[bufindw], "N") != NULL)
         {
           strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
@@ -1036,10 +611,6 @@ void get_command()
             case 2:  //G2
             case 3:  //G3 arc func
             #endif
-              #ifdef SDSUPPORT
-              if(savetosd)
-                break;
-              #endif
               showString(PSTR("ok\r\n"));
               //Serial.println("ok"); 
             break;
@@ -1063,49 +634,6 @@ void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
-#ifdef SDSUPPORT
-  if(!sdmode || serial_count!=0)
-  {
-    return;
-  }
-  while( filesize > sdpos && buflen < BUFSIZE)
-  {
-    serial_char = file.read();
-    read_char_int = (int)serial_char;
-    
-    if(serial_char == '\n' || serial_char == '\r' || (serial_char == ':' && comment_mode == false) || serial_count >= (MAX_CMD_SIZE - 1) || read_char_int == -1) 
-    {
-        sdpos = file.curPosition();
-        if(sdpos >= filesize)
-        {
-            sdmode = false;
-            showString(PSTR("Done printing file\r\n"));
-        }
-       
-        if(!serial_count) { //if empty line
-          comment_mode = false; // for new command
-          return;
-        }
-        
-        cmdbuffer[bufindw][serial_count] = 0; //terminate string
-
-          fromsd[bufindw] = true;
-          buflen += 1;
-          //Removed modulo (%) operator, which uses an expensive divide and multiplication	
-          //bufindw = (bufindw + 1)%BUFSIZE;
-          bufindw++;
-          if(bufindw == BUFSIZE) bufindw = 0;
-
-        comment_mode = false; //for new command
-        serial_count = 0; //clear buffer
-    }
-    else
-    {
-      if(serial_char == ';') comment_mode = true;
-      if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
-    }
-  }
-#endif
 
 }
 
@@ -1201,6 +729,37 @@ FORCE_INLINE void homing_routine(char axis)
   }
 }
 
+void print_temps() {
+
+        #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX6675)|| defined HEATER_USES_AD595
+          hotendtC = analog2temp(current_raw);
+        #endif
+        #if TEMP_1_PIN > -1 || defined BED_USES_AD595
+          bedtempC = analog2tempBed(current_bed_raw);
+        #endif
+        #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX6675) || defined HEATER_USES_AD595
+            showString(PSTR("E0,"));
+            // target temp for E0
+            Serial.print(analog2temp(target_raw)); 
+            showString(PSTR(","));
+            // actual temp for E0
+            Serial.print(hotendtC); 
+            showString(PSTR(","));
+          #if TEMP_1_PIN > -1 || defined BED_USES_AD595
+            showString(PSTR("B0,"));
+            // target temp for B0
+            Serial.print(analog2tempBed(target_bed_raw)); 
+            showString(PSTR(","));
+            // actual temp for B0
+            Serial.println(bedtempC); 
+          #else
+            Serial.println();
+          #endif
+        #else
+          #error No temperature source available
+        #endif
+}
+
 //------------------------------------------------
 // CHECK COMMAND AND CONVERT VALUES
 //------------------------------------------------
@@ -1221,7 +780,6 @@ FORCE_INLINE void process_commands()
         get_coordinates(); // For X Y Z E F
         prepare_move();
         previous_millis_cmd = millis();
-        //ClearToSend();
         return;
         //break;
       #ifdef USE_ARC_FUNCTION
@@ -1315,144 +873,6 @@ FORCE_INLINE void process_commands()
     
     switch( (int)code_value() ) 
     {
-#ifdef SDSUPPORT
-        
-      case 20: // M20 - list SD card
-        showString(PSTR("Begin file list\r\n"));
-        root.ls();
-        showString(PSTR("End file list\r\n"));
-        break;
-      case 21: // M21 - init SD card
-        sdmode = false;
-        initsd();
-        break;
-      case 22: //M22 - release SD card
-        sdmode = false;
-        sdactive = false;
-        break;
-      case 23: //M23 - Select file
-        if(sdactive)
-        {
-            sdmode = false;
-            file.close();
-            starpos = (strchr(strchr_pointer + 4,'*'));
-            
-            if(starpos!=NULL)
-                *(starpos-1)='\0';
-            
-            if (file.open(&root, strchr_pointer + 4, O_READ)) 
-            {
-                showString(PSTR("File opened:"));
-                Serial.print(strchr_pointer + 4);
-                showString(PSTR(" Size:"));
-                Serial.println(file.fileSize());
-                sdpos = 0;
-                filesize = file.fileSize();
-                showString(PSTR("File selected\r\n"));
-            }
-            else
-            {
-                showString(PSTR("file.open failed\r\n"));
-            }
-        }
-        break;
-      case 24: //M24 - Start SD print
-        if(sdactive)
-        {
-            sdmode = true;
-        }
-        break;
-      case 25: //M25 - Pause SD print
-        if(sdmode)
-        {
-            sdmode = false;
-        }
-        break;
-      case 26: //M26 - Set SD index
-        if(sdactive && code_seen('S'))
-        {
-            sdpos = code_value_long();
-            file.seekSet(sdpos);
-        }
-        break;
-      case 27: //M27 - Get SD status
-        if(sdactive)
-        {
-            showString(PSTR("SD printing byte "));
-            Serial.print(sdpos);
-            showString(PSTR("/"));
-            Serial.println(filesize);
-        }
-        else
-        {
-            showString(PSTR("Not SD printing\r\n"));
-        }
-        break;
-      case 28: //M28 - Start SD write
-        if(sdactive)
-        {
-          char* npos = 0;
-            file.close();
-            sdmode = false;
-            starpos = (strchr(strchr_pointer + 4,'*'));
-            if(starpos != NULL)
-            {
-              npos = strchr(cmdbuffer[bufindr], 'N');
-              strchr_pointer = strchr(npos,' ') + 1;
-              *(starpos-1) = '\0';
-            }
-            
-            if (!file.open(&root, strchr_pointer+4, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
-            {
-              showString(PSTR("open failed, File: "));
-              Serial.print(strchr_pointer + 4);
-              showString(PSTR("."));
-            }
-            else
-            {
-              savetosd = true;
-              showString(PSTR("Writing to file: "));
-              Serial.println(strchr_pointer + 4);
-            }
-        }
-        break;
-      case 29: //M29 - Stop SD write
-        //processed in write to file routine above
-        //savetosd = false;
-        break;
-  #ifndef SD_FAST_XFER_AKTIV
-      case 30: // M30 filename - Delete file
-        if(sdactive)
-        {
-            sdmode = false;
-            file.close();
-            
-            starpos = (strchr(strchr_pointer + 4,'*'));
-            
-            if(starpos!=NULL)
-                *(starpos-1)='\0';
-            
-            if(file.remove(&root, strchr_pointer + 4))
-            {
-              showString(PSTR("File deleted\r\n"));
-            }
-            else
-            {
-              showString(PSTR("Deletion failed\r\n"));
-            }
-        }
-        break;  
-   #else     
-      case 30: //M30 - fast SD transfer
-        fast_xfer();
-        break;
-      case 31: //M31 - high speed xfer capabilities
-        showString(PSTR("RAW:"));
-        Serial.println(SD_FAST_XFER_CHUNK_SIZE);
-        break;
-   #endif
-        
-#endif
       case 42: //M42 -Change pin status via gcode
         if (code_seen('S'))
         {
@@ -1481,146 +901,10 @@ FORCE_INLINE void process_commands()
           }
         }
         break;
-      case 104: // M104
-#ifdef CHAIN_OF_COMMAND
-          st_synchronize(); // wait for all movements to finish
-#endif
-        if (code_seen('S')) target_raw = temp2analogh(target_temp = code_value());
-        #ifdef WATCHPERIOD
-            if(target_raw > current_raw)
-            {
-                watchmillis = max(1,millis());
-                watch_raw = current_raw;
-            }
-            else
-            {
-                watchmillis = 0;
-            }
-        #endif
-        break;
-      case 140: // M140 set bed temp
-#ifdef CHAIN_OF_COMMAND
-          st_synchronize(); // wait for all movements to finish
-#endif
-        #if TEMP_1_PIN > -1 || defined BED_USES_AD595
-            if (code_seen('S')) target_bed_raw = temp2analogBed(code_value());
-        #endif
-        break;
+
       case 105: // M105
-        #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX6675)|| defined HEATER_USES_AD595
-          hotendtC = analog2temp(current_raw);
-        #endif
-        #if TEMP_1_PIN > -1 || defined BED_USES_AD595
-          bedtempC = analog2tempBed(current_bed_raw);
-        #endif
-        #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX6675) || defined HEATER_USES_AD595
-            showString(PSTR("ok T:"));
-            Serial.print(hotendtC); 
-          #ifdef PIDTEMP
-            showString(PSTR(" @:"));
-            Serial.print(heater_duty); 
-            /*
-            showString(PSTR(",P:"));
-            Serial.print(pTerm);
-            showString(PSTR(",I:"));
-            Serial.print(iTerm);
-            showString(PSTR(",D:"));
-            Serial.print(dTerm);
-            */
-            #ifdef AUTOTEMP
-              showString(PSTR(",AU:"));
-              Serial.print(autotemp_setpoint);
-            #endif
-          #endif
-          #if TEMP_1_PIN > -1 || defined BED_USES_AD595
-            showString(PSTR(" B:"));
-            Serial.println(bedtempC); 
-          #else
-            Serial.println();
-          #endif
-        #else
-          #error No temperature source available
-        #endif
-        return;
-        //break;
-      case 109: { // M109 - Wait for extruder heater to reach target.
-#ifdef CHAIN_OF_COMMAND
-          st_synchronize(); // wait for all movements to finish
-#endif
-        if (code_seen('S')) target_raw = temp2analogh(target_temp = code_value());
-        #ifdef WATCHPERIOD
-            if(target_raw>current_raw)
-            {
-                watchmillis = max(1,millis());
-                watch_raw = current_raw;
-            }
-            else
-            {
-                watchmillis = 0;
-            }
-        #endif
-        codenum = millis(); 
-        
-        /* See if we are heating up or cooling down */
-        bool target_direction = (current_raw < target_raw);  // true if heating, false if cooling
-        
-      #ifdef TEMP_RESIDENCY_TIME
-        long residencyStart;
-        residencyStart = -1;
-        /* continue to loop until we have reached the target temp   
-           _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-        while( (target_direction ? (current_raw < target_raw) : (current_raw > target_raw))
-            || (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
-      #else
-        while ( target_direction ? (current_raw < target_raw) : (current_raw > target_raw) ) {
-      #endif
-          if( (millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up/cooling down
-          {
-            showString(PSTR("T:"));
-            Serial.println( analog2temp(current_raw) );
-            codenum = millis();
-          }
-          manage_heater();
-          #if (MINIMUM_FAN_START_SPEED > 0)
-            manage_fan_start_speed();
-          #endif
-          #ifdef TEMP_RESIDENCY_TIME
-            /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
-               or when current temp falls outside the hysteresis after target temp was reached */
-            if (   (residencyStart == -1 &&  target_direction && current_raw >= target_raw)
-                || (residencyStart == -1 && !target_direction && current_raw <= target_raw)
-                || (residencyStart > -1 && labs(analog2temp(current_raw) - analog2temp(target_raw)) > TEMP_HYSTERESIS) ) {
-              residencyStart = millis();
-            }
-          #endif
-	    }
-      }
-      break;
-      case 190: // M190 - Wait for bed heater to reach target temperature.
-#ifdef CHAIN_OF_COMMAND
-          st_synchronize(); // wait for all movements to finish
-#endif
-      #if TEMP_1_PIN > -1
-        if (code_seen('S')) target_bed_raw = temp2analogBed(code_value());
-        codenum = millis(); 
-        while(current_bed_raw < target_bed_raw) 
-        {
-          if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
-          {
-            hotendtC=analog2temp(current_raw);
-            showString(PSTR("T:"));
-            Serial.print( hotendtC );
-            showString(PSTR(" B:"));
-            Serial.println( analog2tempBed(current_bed_raw) ); 
-            codenum = millis(); 
-          }
-          manage_heater();
-          #if (MINIMUM_FAN_START_SPEED > 0)
-            manage_fan_start_speed();
-          #endif
-        }
-      #endif
-      break;
+	print_temps();
+        break;
       #if FAN_PIN > -1
       case 106: //M106 Fan On
 #ifdef CHAIN_OF_COMMAND
@@ -1747,10 +1031,64 @@ FORCE_INLINE void process_commands()
 	showString(PSTR("E:"));
         Serial.println(axis_steps_per_unit[3]);
         break;
+
+      case 104: // M104
+#ifdef CHAIN_OF_COMMAND
+          st_synchronize(); // wait for all movements to finish
+#endif
+        if (code_seen('S')) target_raw = temp2analogh(target_temp = code_value());
+
+        break;
+      case 109: // M109
+#ifdef CHAIN_OF_COMMAND
+          st_synchronize(); // wait for all movements to finish
+#endif
+        // set extruder temperature
+        if (code_seen('S')) target_raw = temp2analogh(target_temp = code_value());
+	// wait until it is reached
+
+        hotendtC = analog2temp(current_raw);
+        while (hotendtC < analog2temp(target_raw)-2) {
+          print_temps();
+          delay(5000);
+          manage_heater();
+          hotendtC = analog2temp(current_raw);
+        }
+
+        break;
+
+      case 140: // M140 set bed temp
+#ifdef CHAIN_OF_COMMAND
+          st_synchronize(); // wait for all movements to finish
+#endif
+        #if TEMP_1_PIN > -1 || defined BED_USES_AD595
+            if (code_seen('S')) target_bed_raw = temp2analogBed(code_value());
+        #endif
+
+        break;
+      case 190: // M190
+#ifdef CHAIN_OF_COMMAND
+          st_synchronize(); // wait for all movements to finish
+#endif
+        #if TEMP_1_PIN > -1 || defined BED_USES_AD595
+	    // set bed temperature
+            if (code_seen('S')) target_bed_raw = temp2analogBed(code_value());
+            // wait until it is reached
+
+            bedtempC = analog2temp(current_bed_raw);
+            while (bedtempC < analog2temp(target_bed_raw)-2) {
+              print_temps();
+              delay(5000);
+              manage_heater();
+              bedtempC = analog2temp(current_bed_raw);
+            }
+
+        #endif
+        break;
+
       case 115: // M115
-        showString(PSTR("FIRMWARE_NAME: Sprinter Experimental PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1\r\n"));
-        //Serial.println(uuid);
-        showString(PSTR(_DEF_CHAR_UUID));
+        showString(PSTR("Sprinter\r\n"));
+        showString(PSTR(_VERSION_TEXT));
         showString(PSTR("\r\n"));
         break;
       case 114: // M114
@@ -1818,10 +1156,6 @@ FORCE_INLINE void process_commands()
         }
       break;
       #endif
-      case 203: // M203 Temperature monitor
-          if(code_seen('S')) manage_monitor = code_value();
-          if(manage_monitor==100) manage_monitor=1; // Set 100 to heated bed
-      break;
       case 204: // M204 acceleration S normal moves T filmanent only moves
           if(code_seen('S')) move_acceleration = code_value() ;
           if(code_seen('T')) retract_acceleration = code_value() ;
@@ -1965,8 +1299,6 @@ FORCE_INLINE void process_commands()
       
 }
 
-
-
 void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
@@ -1979,10 +1311,6 @@ void FlushSerialRequestResend()
 void ClearToSend()
 {
   previous_millis_cmd = millis();
-  #ifdef SDSUPPORT
-  if(fromsd[bufindr])
-    return;
-  #endif
   showString(PSTR("ok\r\n"));
   //Serial.println("ok");
 }
@@ -2113,7 +1441,9 @@ FORCE_INLINE void kill()
 
 FORCE_INLINE void manage_inactivity(byte debug) 
 { 
-  if( (millis()-previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill(); 
+  // if the time since the last command is greater than max_inactive_time and max_inactive_time is not 0
+  // then turn off any heaters
+  if( (millis()-previous_millis_cmd) > max_inactive_time ) if(max_inactive_time) kill(); 
   
   if( (millis()-previous_millis_cmd) >  stepper_inactive_time ) if(stepper_inactive_time) 
   { 
@@ -2846,9 +2176,6 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate)
   memcpy(position, target, sizeof(target)); // position[] = target[]
 
   planner_recalculate();
-  #ifdef AUTOTEMP
-    getHighESpeed();
-  #endif
   st_wake_up();
 }
 
@@ -2877,52 +2204,6 @@ void plan_set_position(float x, float y, float z, float e)
   
   G92_reset_previous_speed = 1;
 }
-
-#ifdef AUTOTEMP
-void getHighESpeed()
-{
-  static float oldt=0;
-  if(!autotemp_enabled)
-    return;
-  if((target_temp+2) < autotemp_min)  //probably temperature set to zero.
-    return; //do nothing
-  
-  float high=0.0;
-  uint8_t block_index = block_buffer_tail;
-  
-  while(block_index != block_buffer_head) {
-    if((block_buffer[block_index].steps_x != 0) ||
-       (block_buffer[block_index].steps_y != 0) ||
-       (block_buffer[block_index].steps_z != 0)) {
-      float se=(float(block_buffer[block_index].steps_e)/float(block_buffer[block_index].step_event_count))*block_buffer[block_index].nominal_speed;
-      //se; units steps/sec;
-      if(se>high)
-      {
-        high=se;
-      }
-    }
-    block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
-  }
-   
-  float t=autotemp_min+high*autotemp_factor;
-  
-  if(t<autotemp_min)
-    t=autotemp_min;
-  
-  if(t>autotemp_max)
-    t=autotemp_max;
-  
-  if(oldt>t)
-  {
-    t=AUTOTEMP_OLDWEIGHT*oldt+(1-AUTOTEMP_OLDWEIGHT)*t;
-  }
-  oldt=t;
-  autotemp_setpoint = (int)t;
-
-}
-#endif
-
-
 
 // Stepper
 

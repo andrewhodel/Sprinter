@@ -75,25 +75,12 @@ unsigned long previous_millis_heater, previous_millis_bed_heater, previous_milli
   volatile unsigned char g_fan_pwm_val = 0;
 #endif
 
-#ifdef AUTOTEMP
-    float autotemp_max=AUTO_TEMP_MAX;
-    float autotemp_min=AUTO_TEMP_MIN;
-    float autotemp_factor=AUTO_TEMP_FACTOR;
-    int   autotemp_setpoint=0;
-    bool autotemp_enabled=true;
-#endif
-
 #ifndef HEATER_CURRENT
   #define HEATER_CURRENT 255
 #endif
 
 #ifdef SMOOTHING
   uint32_t nma = 0;
-#endif
-
-#ifdef WATCHPERIOD
-  int watch_raw = -1000;
-  unsigned long watchmillis = 0;
 #endif
 
 #ifdef MINTEMP
@@ -509,60 +496,6 @@ void PID_autotune(int PIDAT_test_temp)
  void manage_heater()
  {
 
-  //Temperatur Monitor for repetier
-  if((millis() - previous_millis_monitor) > 250 )
-  {
-    previous_millis_monitor = millis();
-
-
-    if(manage_monitor <= 1)
-    {
-      showString(PSTR("MTEMP:"));
-      Serial.print(millis());
-      if(manage_monitor<1)
-      {
-        showString(PSTR(" "));
-        Serial.print(analog2temp(current_raw));
-        showString(PSTR(" "));
-        Serial.print(target_temp);
-        showString(PSTR(" "));
-        #ifdef PIDTEMP
-        Serial.println(heater_duty);
-        #else 
-          #if (HEATER_0_PIN > -1)
-          if(READ(HEATER_0_PIN))
-            Serial.println(255);
-          else
-            Serial.println(0);
-          #else
-          Serial.println(0);
-          #endif
-        #endif
-      }
-      #if THERMISTORBED!=0
-      else
-      {
-        showString(PSTR(" "));
-        Serial.print(analog2tempBed(current_bed_raw));
-        showString(PSTR(" "));
-        Serial.print(analog2tempBed(target_bed_raw));
-        showString(PSTR(" "));
-        #if (HEATER_1_PIN > -1)
-          if(READ(HEATER_1_PIN))
-            Serial.println(255);
-          else
-            Serial.println(0);
-        #else
-          Serial.println(0);
-        #endif  
-      }
-      #endif
-      
-    }
-  
-  }
-  // ENDE Temperatur Monitor for repetier
- 
   if((millis() - previous_millis_heater) < HEATER_CHECK_INTERVAL )
     return;
     
@@ -594,30 +527,6 @@ void PID_autotune(int PIDAT_test_temp)
     if (!nma) nma = SMOOTHFACTOR * current_raw;
     nma = (nma + current_raw) - (nma / SMOOTHFACTOR);
     current_raw = nma / SMOOTHFACTOR;
-  #endif
-  
-  #ifdef WATCHPERIOD
-    if(watchmillis && millis() - watchmillis > WATCHPERIOD)
-    {
-        if(watch_raw + 1 >= current_raw)
-        {
-            target_temp = target_raw = 0;
-            WRITE(HEATER_0_PIN,LOW);
-
-            #ifdef PID_SOFT_PWM
-              g_heater_pwm_val = 0;           
-            #else
-              analogWrite(HEATER_0_PIN, 0);
-              #if LED_PIN>-1
-                WRITE(LED_PIN,LOW);
-              #endif
-            #endif
-        }
-        else
-        {
-            watchmillis = 0;
-        }
-    }
   #endif
   
   //If tmp is lower then MINTEMP stop the Heater

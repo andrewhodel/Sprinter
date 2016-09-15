@@ -52,8 +52,6 @@
 #define E_DIR_PIN          12
 #define E_ENABLE_PIN       -1
 
-#define SDPOWER          -1
-#define SDSS          -1
 #define LED_PIN            -1
 #define FAN_PIN            -1
 #define PS_ON_PIN          15
@@ -156,8 +154,6 @@
 #define E_DIR_PIN          16
 #define E_ENABLE_PIN        3
 
-#define SDPOWER          -1
-#define SDSS          -1
 #define LED_PIN             0
 #define FAN_PIN            -1
 #define PS_ON_PIN          -1
@@ -207,13 +203,7 @@
 #define E_DIR_PIN       16
 #define E_ENABLE_PIN    -1
 
-#define SDPOWER          -1
-#define SDSS          4
 #define LED_PIN          0
-
-#define SD_CARD_WRITE    2
-#define SD_CARD_DETECT   3
-#define SD_CARD_SELECT   4
 
 //our RS485 pins
 #define TX_ENABLE_PIN	12
@@ -283,11 +273,6 @@
 //pin for debugging.
 #define DEBUG_PIN        -1
 
-//SD card pin
-
-#define SDSS		  4
-
-#define SDPOWER          -1
 #define FAN_PIN          -1
 #define TEMP_0_PIN        0
 #define TEMP_1_PIN        5
@@ -346,9 +331,6 @@
 #define HEATER_1_PIN -1
 #define TEMP_1_PIN -1
 
-
-#define SDSS		 -1
-#define SDPOWER          -1
 #define LED_PIN          -1
 
 //pin for controlling the PSU.
@@ -406,11 +388,6 @@
 //pin for debugging.
 #define DEBUG_PIN        -1
 
-//SD card pin
-
-#define SDSS		  4
-
-#define SDPOWER          -1
 #define FAN_PIN          -1
 #define TEMP_0_PIN        0
 #define TEMP_1_PIN        5
@@ -472,8 +449,6 @@
 #define E_1_DIR_PIN          34
 #define E_1_ENABLE_PIN       30
 
-#define SDPOWER            -1
-#define SDSS               53
 #define LED_PIN            13
 #define FAN_PIN            9
 #define PS_ON_PIN          12
@@ -510,8 +485,6 @@
 #define E_DIR_PIN          34
 #define E_ENABLE_PIN       30
 
-#define SDPOWER            48
-#define SDSS               53
 #define LED_PIN            13
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
@@ -535,15 +508,10 @@
 
 // SPI for Max6675 Thermocouple 
 
-#ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support  
-  #define SCK_PIN          52
-  #define MISO_PIN         50
-  #define MOSI_PIN         51
-  #define MAX6675_SS       53
-#else
-  #define MAX6675_SS       49
-#endif
+#define SCK_PIN          52
+#define MISO_PIN         50
+#define MOSI_PIN         51
+#define MAX6675_SS       53
 
 
 #endif
@@ -580,8 +548,6 @@
 #define E_DIR_PIN          12
 #define E_ENABLE_PIN       -1
 
-#define SDPOWER          -1
-#define SDSS          -1
 #define LED_PIN            -1
 #define FAN_PIN             5
 #define PS_ON_PIN          -1
@@ -646,8 +612,6 @@
       #define TEMP_1_PIN     -1    
     #endif
     
-    #define SDPOWER          -1
-    #define SDSS          17
     #define LED_PIN         -1    //changed @ rkoeppl 20110410
     #define FAN_PIN         -1    //changed @ rkoeppl 20110410
     #define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
@@ -721,8 +685,6 @@
 
 #define TEMP_0_PIN          7   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
 #define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
-#define SDPOWER          -1
-#define SDSS          31
 
 #endif
 
@@ -776,8 +738,6 @@
     #define HEATER_1_PIN     3    // Bed
 
 
-    #define SDPOWER         -1
-    #define SDSS            -1
     #define LED_PIN         -1    
     #define TEMP_1_PIN      2    //Bed   
     #define FAN_PIN         -1    
@@ -823,19 +783,14 @@
 #define TEMP_0_PIN          7  // Extruder
 #define TEMP_1_PIN          6  // Bed
 
-#define SDPOWER            -1
-#define SDSS                20
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1 
 #define ALARM_PIN          -1
 
-#ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support  
-  #define SCK_PIN          21
-  #define MISO_PIN         22 
-  #define MOSI_PIN         23 
-#endif
+#define SCK_PIN          21
+#define MISO_PIN         22 
+#define MOSI_PIN         23 
 
 #endif
 
@@ -878,18 +833,13 @@
 #define TEMP_0_PIN          1  // Extruder
 #define TEMP_1_PIN          0  // Bed
 
-#define SDPOWER            -1
-#define SDSS                2
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 
-#ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support
-  #define SCK_PIN          21
-  #define MISO_PIN         22
-  #define MOSI_PIN         23
-#endif
+#define SCK_PIN          21
+#define MISO_PIN         22
+#define MOSI_PIN         23
 
 #endif
 

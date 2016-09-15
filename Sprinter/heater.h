@@ -72,7 +72,6 @@ extern int tt_minval;
 extern int target_bed_raw;
 extern int current_bed_raw;
 extern unsigned long previous_millis_heater, previous_millis_bed_heater;
-extern unsigned char manage_monitor;
 
 #ifdef PIDTEMP
   extern volatile unsigned char g_heater_pwm_val;
@@ -96,26 +95,9 @@ extern unsigned char manage_monitor;
   extern volatile unsigned char g_fan_pwm_val;
 #endif
 
-#ifdef AUTOTEMP
-    extern float autotemp_max;
-    extern float autotemp_min;
-    extern float autotemp_factor;
-    extern int   autotemp_setpoint;
-    extern bool autotemp_enabled;
-#endif
-
-
 #ifdef SMOOTHING
   extern uint32_t nma;
 #endif
-
-#ifdef WATCHPERIOD
-  extern int watch_raw;
-  extern unsigned long watchmillis;
-#endif
-
-
-
 
 #if defined(PID_SOFT_PWM) || (defined(FAN_SOFT_PWM) && (FAN_PIN > -1))
  void init_Timer2_softpwm(void);

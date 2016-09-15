@@ -53,15 +53,6 @@ const bool Z_ENDSTOP_INVERT = true;
 #define BAUDRATE 115200
 //#define BAUDRATE 250000
 
-// Comment out (using // at the start of the line) to disable SD support:
-//#define SDSUPPORT
-
-// Uncomment to make run init.g from SD on boot
-//#define SDINITFILE
-
-//Only work with Atmega1284 you need +1 kb ram
-//#define SD_FAST_XFER_AKTIV
-
 //-----------------------------------------------------------------------
 //// STORE SETTINGS TO EEPROM
 //-----------------------------------------------------------------------
@@ -81,19 +72,11 @@ const bool Z_ENDSTOP_INVERT = true;
 //// ARC Function (G2/G3 Command)
 //-----------------------------------------------------------------------
 //Uncomment to aktivate the arc (circle) function (G2/G3 Command)
-//Without SD function an ARC function the used Flash is smaller 31 kb
 #define USE_ARC_FUNCTION
 
 //-----------------------------------------------------------------------
 //// ADVANCED SETTINGS - to tweak parameters
 //-----------------------------------------------------------------------
-
-#ifdef SDSUPPORT
-	#ifdef SD_FAST_XFER_AKTIV
-		//Fast transfer chunk size (> 1024 is unstable, change at your own risk).
-		#define SD_FAST_XFER_CHUNK_SIZE 1024
-	#endif
-#endif
 
 //-----------------------------------------------------------------------
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
@@ -221,14 +204,8 @@ const int dropsegments=5; //everything with less than this number of steps will 
 //-----------------------------------------------------------------------
 
 // The number of linear motions that can be in the plan at any give time
-// if the SD Card need to much memory reduce the Values for Plannerpuffer (base of 2)
-#ifdef SDSUPPORT
-  #define BLOCK_BUFFER_SIZE 16
-  #define BLOCK_BUFFER_MASK 0x0f
-#else
-  #define BLOCK_BUFFER_SIZE 16  
-  #define BLOCK_BUFFER_MASK 0x0f
-#endif 
+#define BLOCK_BUFFER_SIZE 16  
+#define BLOCK_BUFFER_MASK 0x0f
 
 //-----------------------------------------------------------------------
 //// SETTINGS FOR ARC FUNCTION (Command G2/G2)
@@ -263,18 +240,6 @@ const int dropsegments=5; //everything with less than this number of steps will 
 //-----------------------------------------------------------------------
 //// HEATERCONTROL AND PID PARAMETERS
 //-----------------------------------------------------------------------
-
-//Testfunction to adjust the Hotend temperatur in case of Printingspeed
-//If the Printer print slow the Temp is going to AUTO_TEMP_MIN
-//At the moment this Value dont change the targettemp from the Hotend
-//The result of this function is only send with the Temperaturerequest to the host
-//#define AUTOTEMP 
-#ifdef AUTOTEMP
-    #define AUTO_TEMP_MAX 240
-    #define AUTO_TEMP_MIN 205
-    #define AUTO_TEMP_FACTOR 0.025
-    #define AUTOTEMP_OLDWEIGHT 0.98
-#endif
 
 //// AD595 THERMOCOUPLE SUPPORT UNTESTED... USE WITH CAUTION!!!!
 
@@ -330,12 +295,6 @@ const int dropsegments=5; //everything with less than this number of steps will 
 //// Temperature smoothing - only uncomment this if your temp readings are noisy (Gen6 without EvdZ's 5V hack)
 //#define SMOOTHING
 //#define SMOOTHFACTOR 16 //best to use a power of two here - determines how many values are averaged together by the smoothing algorithm
-
-
-//// Experimental watchdog and minimal temp
-// The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
-// If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
-//#define WATCHPERIOD 5000 //5 seconds
 
 // Actual temperature must be close to target for this long before M109 returns success
 //#define TEMP_RESIDENCY_TIME 20  // (seconds)
