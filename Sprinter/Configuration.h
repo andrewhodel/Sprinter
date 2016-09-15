@@ -47,7 +47,7 @@
 //If your axes move in one direction ONLY when the endstops are triggered, set [XYZ]_ENDSTOP_INVERT to true here:
 const bool X_ENDSTOP_INVERT = true;
 const bool Y_ENDSTOP_INVERT = true;
-const bool Z_ENDSTOP_INVERT = false;
+const bool Z_ENDSTOP_INVERT = true;
 
 // This determines the communication speed of the printer
 #define BAUDRATE 115200
