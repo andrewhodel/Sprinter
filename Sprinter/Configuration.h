@@ -381,7 +381,7 @@ const int dropsegments=5; //everything with less than this number of steps will 
 //#define SEND_WRONG_CMD_INFO
 
 // Uncomment the following line to enable debugging. You can better control debugging below the following line
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
   //#define DEBUG_PREPARE_MOVE //Enable this to debug prepare_move() function
   //#define DEBUG_MOVE_TIME //Enable this to time each move and print the result   

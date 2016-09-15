@@ -1138,7 +1138,9 @@ FORCE_INLINE void homing_routine(char axis)
       home_dir = X_HOME_DIR;
       max_length = X_MAX_LENGTH;
       home_bounce = 10;
+#ifdef DEBUG
       Serial.println("Homing X Axis");
+#endif  
       break;
     case Y_AXIS:
       min_pin = Y_MIN_PIN;
@@ -1146,7 +1148,9 @@ FORCE_INLINE void homing_routine(char axis)
       home_dir = Y_HOME_DIR;
       max_length = Y_MAX_LENGTH;
       home_bounce = 10;
+#ifdef DEBUG
       Serial.println("Homing Y Axis");
+#endif  
       break;
     case Z_AXIS:
       min_pin = Z_MIN_PIN;
@@ -1154,7 +1158,9 @@ FORCE_INLINE void homing_routine(char axis)
       home_dir = Z_HOME_DIR;
       max_length = Z_MAX_LENGTH;
       home_bounce = 4;
+#ifdef DEBUG
       Serial.println("Homing Z Axis");
+#endif  
       break;
     default:
       //never reached
@@ -1189,7 +1195,9 @@ FORCE_INLINE void homing_routine(char axis)
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
     destination[axis] = current_position[axis];
     feedrate = 0;
+#ifdef DEBUG
     Serial.println("Axis Homed");
+#endif  
   }
 }
 
