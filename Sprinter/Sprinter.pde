@@ -904,7 +904,7 @@ FORCE_INLINE void process_commands()
 
       case 105: // M105
 	print_temps();
-        break;
+        return;
       #if FAN_PIN > -1
       case 106: //M106 Fan On
 #ifdef CHAIN_OF_COMMAND
